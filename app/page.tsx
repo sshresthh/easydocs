@@ -1,10 +1,8 @@
-
-
 export default function Home() {
   return (
     <main>
       <div>
-        <h1>Next.js app</h1>
+        <h1>AI-SaaS-Project-1</h1>
       </div>
     </main>
   );
