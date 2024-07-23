@@ -3,15 +3,27 @@ import Image from "next/image";
 import Link from "next/link";
 
 const techCards = [
-  { name: "React", logo: "/react-logo.png", route: "/docs/react" },
-  { name: "Next.js", logo: "/nextjs-logo.png", route: "/docs/nextjs" },
-  { name: "Supabase", logo: "/supabase-logo.png", route: "/docs/supabase" },
+  { name: "React", logo: "/images/logos/react-logo.svg", route: "/docs/react" },
+  {
+    name: "Next.js",
+    logo: "/images/logos/nextjs-logo.svg",
+    route: "/docs/nextjs",
+  },
+  {
+    name: "Supabase",
+    logo: "/images/logos/supabase-logo.svg",
+    route: "/docs/supabase",
+  },
   {
     name: "TailwindCSS",
-    logo: "/tailwind-logo.png",
+    logo: "/images/logos/tailwind-logo.svg",
     route: "/docs/tailwindcss",
   },
-  { name: "Laravel", logo: "/laravel-logo.png", route: "/docs/laravel" },
+  {
+    name: "Laravel",
+    logo: "/images/logos/laravel-logo.svg",
+    route: "/docs/laravel",
+  },
 ];
 
 export default function Home() {
