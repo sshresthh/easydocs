@@ -1,19 +1,13 @@
+// components/EasyDocs.tsx
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BrowseTab from "./BrowseTab";
 import ChatTab from "./ChatTab";
 import SearchTab from "./SearchTab";
 
 export default function EasyDocs({ initialTechnology = "" }) {
   const [activeTab, setActiveTab] = useState("search");
-
-  useEffect(() => {
-    if (initialTechnology) {
-      setActiveTab("search");
-    }
-  }, [initialTechnology]);
 
   return (
     <div className="drawer lg:drawer-open">
@@ -36,11 +30,6 @@ export default function EasyDocs({ initialTechnology = "" }) {
       <div className="drawer-side">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
         <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-          <li className="mb-6">
-            <Link href="/" className="text-2xl font-bold gradient-text">
-              EasyDocs
-            </Link>
-          </li>
           <li>
             <a
               onClick={() => setActiveTab("search")}
