@@ -8,12 +8,14 @@ export default function SearchTab({ initialQuery = "" }) {
 
   useEffect(() => {
     if (initialQuery) {
-      handleSearch(new Event("submit") as React.FormEvent<HTMLFormElement>);
+      handleSearch();
     }
   }, [initialQuery]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (e?: React.FormEvent<HTMLFormElement>) => {
+    if (e) {
+      e.preventDefault();
+    }
     setResult(
       `AI-powered explanation for "${query}":\n\nHere's a beginner-friendly explanation of ${query}...\n\n[Detailed, simplified explanation would go here]\n\nKey Points:\n1. [Important concept 1]\n2. [Important concept 2]\n3. [Important concept 3]\n\nQuick Start:\n\`\`\`code\n// Example usage\n\`\`\``
     );
