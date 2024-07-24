@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const response = completion.choices[0].message.content;
 
     // Parse the response
-    const [summary, codeExample, keyPointsRaw, version] = response.?plit('\n\n');
+    const [summary, codeExample, keyPointsRaw, version] = response.split('\n\n');
     const keyPoints = keyPointsRaw.split('\n').filter(point => point.trim() !== '');
 
     return NextResponse.json({
