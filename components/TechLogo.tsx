@@ -1,4 +1,4 @@
-// components/TechLogo.tsx
+// File: components/TechLogo.tsx
 import React from 'react';
 import Image from 'next/image';
 
