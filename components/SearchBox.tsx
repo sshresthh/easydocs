@@ -19,11 +19,13 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setAiResponse(null);
+    setError(null);
 
     try {
       const response = await fetch('/api/ai-summary', {
@@ -42,12 +44,7 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
       setAiResponse(data);
     } catch (error) {
       console.error('Error fetching summary:', error);
-      setAiResponse({
-        summary: 'An error occurred while fetching the information. Please try again.',
-        codeExample: '',
-        keyPoints: [],
-        version: '',
-      });
+      setError('An error occurred while fetching the information. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +73,11 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
       {isLoading && (
         <div className="text-white text-center">
           Generating insights...
+        </div>
+      )}
+      {error && (
+        <div className="text-red-500 text-center">
+          {error}
         </div>
       )}
       {aiResponse && (

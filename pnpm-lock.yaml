@@ -18,10 +18,10 @@ dependencies:
     specifier: ^4.53.0
     version: 4.53.0
   react:
-    specifier: ^18
+    specifier: ^18.3.1
     version: 18.3.1
   react-dom:
-    specifier: ^18
+    specifier: ^18.3.1
     version: 18.3.1(react@18.3.1)
   react-icons:
     specifier: ^5.2.1
@@ -32,10 +32,10 @@ devDependencies:
     specifier: ^20
     version: 20.14.12
   '@types/react':
-    specifier: ^18
+    specifier: ^18.3.3
     version: 18.3.3
   '@types/react-dom':
-    specifier: ^18
+    specifier: ^18.3.0
     version: 18.3.0
   eslint:
     specifier: ^8

@@ -29,17 +29,21 @@ export async function POST(request: Request) {
       max_tokens: 1000,
     });
 
-    const response = completion.choices[0].message.content;
+    const responseContent = completion.choices[0]?.message?.content;
+
+    if (!responseContent) {
+      throw new Error('No response from AI');
+    }
 
     // Parse the response
-    const [summary, codeExample, keyPointsRaw, version] = response.split('\n\n');
-    const keyPoints = keyPointsRaw.split('\n').filter(point => point.trim() !== '');
+    const [summary, codeExample, keyPointsRaw, version] = responseContent.split('\n\n');
+    const keyPoints = keyPointsRaw ? keyPointsRaw.split('\n').filter(point => point.trim() !== '') : [];
 
     return NextResponse.json({
-      summary,
-      codeExample,
-      keyPoints,
-      version,
+      summary: summary || 'No summary provided',
+      codeExample: codeExample || 'No code example provided',
+      keyPoints: keyPoints.length > 0 ? keyPoints : ['No key points provided'],
+      version: version || 'Version information not available',
     });
   } catch (error) {
     console.error('Error in AI summary generation:', error);
