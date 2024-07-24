@@ -53,7 +53,7 @@ export default function TechSelector({ techList }: TechSelectorProps) {
         disabled={selectedTech.length === 0}
         className={`px-6 py-3 rounded-full text-white font-semibold transition-all ${
           selectedTech.length > 0
-            ? 'bg-green-500 hover:bg-green-600 animate-pulse'
+            ? 'bg-green-500 hover:bg-green-600'
             : 'bg-gray-600 cursor-not-allowed'
         }`}
       >
