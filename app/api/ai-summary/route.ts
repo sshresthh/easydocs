@@ -15,6 +15,12 @@ export async function POST(request: Request) {
     query = body.query;
     technologies = body.technologies || [];
 
+    console.log(
+      `Received request for query: "${query}" with technologies: ${technologies.join(
+        ", "
+      )}`
+    );
+
     const prompt = `
       Act as a professional tech tutor and provide a comprehensive summary about ${query} in the context of ${technologies.join(
       ", "
@@ -60,10 +66,11 @@ export async function POST(request: Request) {
       Be concise and focus on the most important information so that any developer from beginner to pro can understand.
     `;
 
+    console.log("Sending request to OpenAI API...");
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 3000, // Increased token limit for more detailed response
+      max_tokens: 3000,
     });
 
     const response = completion.choices[0].message.content;
@@ -72,20 +79,15 @@ export async function POST(request: Request) {
       throw new Error("No response from AI");
     }
 
-    // Parse the response and remove any markdown artifacts
-    const [
-      summary,
-      keyPoints,
-      codeExample,
-      bestPractices,
-      commonPitfalls,
-      furtherLearning,
-      realWorldApplications,
-    ] = response
-      .split("\n\n")
-      .map((section) => section.replace(/^[#\s*`]+|[#\s*`]+$/g, "").trim());
+    console.log("Received response from OpenAI API. Parsing response...");
 
-    return NextResponse.json({
+    // Parse the response and remove any markdown artifacts
+    const [summary, keyPoints, codeExample, bestPractices, commonPitfalls] =
+      response
+        .split("\n\n")
+        .map((section) => section.replace(/^[#\s*`]+|[#\s*`]+$/g, "").trim());
+
+    const result = {
       summary,
       keyPoints: keyPoints
         .split("\n")
@@ -97,14 +99,11 @@ export async function POST(request: Request) {
       commonPitfalls: commonPitfalls
         .split("\n")
         .map((pitfall) => pitfall.replace(/^\d+\.\s*/, "").trim()),
-      furtherLearning: furtherLearning
-        .split("\n")
-        .map((resource) => resource.replace(/^\d+\.\s*/, "").trim()),
-      realWorldApplications: realWorldApplications
-        .split("\n")
-        .map((app) => app.replace(/^\d+\.\s*/, "").trim()),
       generatedAt: new Date().toISOString(),
-    });
+    };
+
+    console.log("Sending response to client...");
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error in AI summary generation:", error);
 
@@ -130,15 +129,6 @@ export async function POST(request: Request) {
         commonPitfalls: [
           "Neglecting to handle errors properly",
           "Ignoring performance considerations",
-        ],
-        furtherLearning: [
-          "Official documentation",
-          "Online courses and tutorials",
-        ],
-        realWorldApplications: [
-          "Web applications",
-          "Mobile app development",
-          "Data analysis projects",
         ],
         generatedAt: new Date().toISOString(),
       },
