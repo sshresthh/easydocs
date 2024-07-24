@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import TechLogo from '@/components/TechLogo';
+import TechLogo from './TechLogo';
 
 interface TechSelectorProps {
   techList: string[];
@@ -31,7 +31,7 @@ export default function TechSelector({ techList }: TechSelectorProps) {
   };
 
   return (
-    <>
+    <div>
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-4xl mb-8">
         {techList.map((tech) => (
           <button
@@ -59,9 +59,6 @@ export default function TechSelector({ techList }: TechSelectorProps) {
       >
         Proceed
       </button>
-      <p className="text-white mt-4">
-        Selected: {selectedTech.length}/4
-      </p>
-    </>
+    </div>
   );
 }
