@@ -1,24 +1,24 @@
 // app/layout.tsx
-import Header from "@/components/Header";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import Header from '@/components/Header'
+import './globals.css'
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
-});
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: "EasyDocs",
-  description: "Simplified tech documentation for everyone",
-};
+  title: 'EasyDocs',
+  description: 'Simplified tech documentation for everyone',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en" data-theme="shipfast">
@@ -27,5 +27,5 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-  );
+  )
 }

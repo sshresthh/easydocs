@@ -17,7 +17,7 @@ const config: Config = {
         accent: "#8b5cf6",
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ['var(--font-inter)'],
       },
     },
   },
@@ -26,15 +26,15 @@ const config: Config = {
     themes: [
       {
         shipfast: {
-          primary: "#3b82f6",
-          secondary: "#10b981",
-          accent: "#8b5cf6",
-          neutral: "#3d4451",
+          "primary": "#3b82f6",
+          "secondary": "#10b981",
+          "accent": "#8b5cf6",
+          "neutral": "#3d4451",
           "base-100": "#000212",
-          info: "#3abff8",
-          success: "#36d399",
-          warning: "#fbbd23",
-          error: "#f87272",
+          "info": "#3abff8",
+          "success": "#36d399",
+          "warning": "#fbbd23",
+          "error": "#f87272",
         },
       },
     ],
