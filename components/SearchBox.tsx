@@ -1,59 +1,64 @@
 // File: components/SearchBox.tsx
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { FaSearch, FaSpinner } from 'react-icons/fa';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FaSearch, FaSpinner } from "react-icons/fa";
 
 interface SearchBoxProps {
   selectedTech: string[];
 }
 
-interface AIResponse {
-  summary: string;
-  keyPoints: string[];
-  codeExample: string;
-  bestPractices: string[];
-  commonPitfalls: string[];
-  furtherLearning: string[];
-  realWorldApplications: string[];
-  generatedAt: string;
-}
-
 export default function SearchBox({ selectedTech }: SearchBoxProps) {
-  const [query, setQuery] = useState('');
-  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
+  const [query, setQuery] = useState("");
+  const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const responseRef = useRef<HTMLDivElement>(null);
 
-  const handleSearch = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const handleSearch = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!query.trim()) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
+      setResponse("");
 
-    try {
-      const response = await fetch('/api/ai-summary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query, technologies: selectedTech }),
-      });
+      try {
+        const res = await fetch("/api/ai-summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, technologies: selectedTech }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch summary');
+        if (!res.ok) throw new Error("Failed to fetch summary");
+
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No reader available");
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = new TextDecoder().decode(value);
+          setResponse((prev) => prev + text);
+        }
+      } catch (error) {
+        console.error("Error fetching summary:", error);
+        setError(
+          "An error occurred while fetching the information. Please try again."
+        );
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [query, selectedTech]
+  );
 
-      const data = await response.json();
-      setAiResponse(data);
-    } catch (error) {
-      console.error('Error fetching summary:', error);
-      setError('An error occurred while fetching the information. Please try again.');
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (responseRef.current) {
+      responseRef.current.scrollTop = responseRef.current.scrollHeight;
     }
-  }, [query, selectedTech]);
+  }, [response]);
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -83,68 +88,12 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
           {error}
         </div>
       )}
-      {aiResponse && (
-        <div className="space-y-8 bg-gray-800 rounded-lg p-6 shadow-lg">
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-blue-400">Summary</h3>
-            <p className="text-gray-300 leading-relaxed">{aiResponse.summary}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-green-400">Key Points</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              {aiResponse.keyPoints.map((point, index) => (
-                <li key={index} className="text-gray-300">{point}</li>
-              ))}
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-purple-400">Code Example</h3>
-            <pre className="bg-gray-900 p-4 rounded text-gray-300 overflow-x-auto">
-              <code>{aiResponse.codeExample}</code>
-            </pre>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-yellow-400">Best Practices</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              {aiResponse.bestPractices.map((practice, index) => (
-                <li key={index} className="text-gray-300">{practice}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-red-400">Common Pitfalls</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              {aiResponse.commonPitfalls.map((pitfall, index) => (
-                <li key={index} className="text-gray-300">{pitfall}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-indigo-400">Further Learning</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              {aiResponse.furtherLearning.map((resource, index) => (
-                <li key={index} className="text-gray-300">{resource}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-semibold mb-3 text-pink-400">Real-world Applications</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              {aiResponse.realWorldApplications.map((app, index) => (
-                <li key={index} className="text-gray-300">{app}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="text-sm text-gray-400 mt-6 text-right">
-            Generated on: {new Date(aiResponse.generatedAt).toLocaleString()}
-          </div>
+      {response && (
+        <div
+          ref={responseRef}
+          className="bg-gray-800 rounded-lg p-6 shadow-lg text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto"
+        >
+          {response}
         </div>
       )}
     </div>
