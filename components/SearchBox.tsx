@@ -15,7 +15,8 @@ interface AIResponse {
   bestPractices: string[];
   commonPitfalls: string[];
   furtherLearning: string[];
-  versionInfo: string;
+  realWorldApplications: string[];
+  generatedAt: string;
 }
 
 export default function SearchBox({ selectedTech }: SearchBoxProps) {
@@ -85,12 +86,12 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
       {aiResponse && (
         <div className="space-y-8 bg-gray-800 rounded-lg p-6 shadow-lg">
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-blue-400">Summary</h3>
+            <h3 className="text-2xl font-semibold mb-3 text-blue-400">Summary</h3>
             <p className="text-gray-300 leading-relaxed">{aiResponse.summary}</p>
           </div>
           
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-green-400">Key Points</h3>
+            <h3 className="text-2xl font-semibold mb-3 text-green-400">Key Points</h3>
             <ul className="list-disc pl-6 space-y-2">
               {aiResponse.keyPoints.map((point, index) => (
                 <li key={index} className="text-gray-300">{point}</li>
@@ -99,14 +100,14 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
           </div>
           
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-purple-400">Code Example</h3>
+            <h3 className="text-2xl font-semibold mb-3 text-purple-400">Code Example</h3>
             <pre className="bg-gray-900 p-4 rounded text-gray-300 overflow-x-auto">
               <code>{aiResponse.codeExample}</code>
             </pre>
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-yellow-400">Best Practices</h3>
+            <h3 className="text-2xl font-semibold mb-3 text-yellow-400">Best Practices</h3>
             <ul className="list-disc pl-6 space-y-2">
               {aiResponse.bestPractices.map((practice, index) => (
                 <li key={index} className="text-gray-300">{practice}</li>
@@ -115,7 +116,7 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-red-400">Common Pitfalls</h3>
+            <h3 className="text-2xl font-semibold mb-3 text-red-400">Common Pitfalls</h3>
             <ul className="list-disc pl-6 space-y-2">
               {aiResponse.commonPitfalls.map((pitfall, index) => (
                 <li key={index} className="text-gray-300">{pitfall}</li>
@@ -124,7 +125,7 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-indigo-400">Further Learning</h3>
+            <h3 className="text-2xl font-semibold mb-3 text-indigo-400">Further Learning</h3>
             <ul className="list-disc pl-6 space-y-2">
               {aiResponse.furtherLearning.map((resource, index) => (
                 <li key={index} className="text-gray-300">{resource}</li>
@@ -132,8 +133,17 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
             </ul>
           </div>
 
-          <div className="text-sm text-gray-400">
-            Version: {aiResponse.versionInfo}
+          <div>
+            <h3 className="text-2xl font-semibold mb-3 text-pink-400">Real-world Applications</h3>
+            <ul className="list-disc pl-6 space-y-2">
+              {aiResponse.realWorldApplications.map((app, index) => (
+                <li key={index} className="text-gray-300">{app}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="text-sm text-gray-400 mt-6 text-right">
+            Generated on: {new Date(aiResponse.generatedAt).toLocaleString()}
           </div>
         </div>
       )}

@@ -16,26 +16,26 @@ export async function POST(request: Request) {
     technologies = body.technologies || [];
 
     const prompt = `
-      You are an AI assistant specialized in providing detailed, accurate information about various technologies. 
+      You are an AI assistant specialized in providing comprehensive, accurate information about various technologies. 
       The user has selected the following technologies: ${technologies.join(', ')}.
-      Please provide comprehensive information addressing the following query, focusing only on the selected technologies:
+      Please provide detailed information addressing the following query, focusing on the selected technologies:
       "${query}"
       Your response should be structured as follows:
-      1. Summary: A detailed 5-6 line explanation of the concept, its importance, and its relation to the selected technologies.
-      2. Key Points: 5-7 important points about the concept, each explained in 1-2 sentences.
-      3. Code Example: A substantial, well-commented code example (15-20 lines) demonstrating the concept in action, using the selected technologies where relevant.
-      4. Best Practices: 3-5 best practices or tips for using this concept effectively.
-      5. Common Pitfalls: 2-3 common mistakes or misconceptions to avoid.
-      6. Further Learning: 2-3 suggested resources or topics for deeper understanding.
-      7. Version Info: The current version or date of the information you're providing.
+      1. Summary: A detailed 10-12 line explanation of the concept, its importance, and its relation to the selected technologies.
+      2. Key Points: 8-10 important points about the concept, each explained in 2-3 sentences.
+      3. Code Example: A comprehensive, well-commented code example (30-40 lines) demonstrating the concept in action, using ALL the selected technologies where relevant. Ensure the example is practical and showcases real-world usage.
+      4. Best Practices: 5-7 best practices or tips for using this concept effectively, each with a brief explanation.
+      5. Common Pitfalls: 4-5 common mistakes or misconceptions to avoid, with explanations on why they occur and how to prevent them.
+      6. Further Learning: 4-5 suggested resources or topics for deeper understanding, with a brief description of what each resource offers.
+      7. Real-world Applications: 3-4 examples of how this concept is used in real-world applications or projects.
       
-      Please ensure all information is up-to-date, beginner-friendly, and provides a comprehensive understanding of the topic.
+      Please ensure all information is up-to-date, provides a comprehensive understanding of the topic, and is tailored to an audience with some programming experience. Do not use any markdown formatting in your response.
     `;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 2000,  // Increased token limit for more detailed response
+      max_tokens: 3000,  // Increased token limit for more detailed response
     });
 
     const response = completion.choices[0].message.content;
@@ -44,17 +44,19 @@ export async function POST(request: Request) {
       throw new Error('No response from AI');
     }
 
-    // Parse the response
-    const [summary, keyPoints, codeExample, bestPractices, commonPitfalls, furtherLearning, versionInfo] = response.split('\n\n');
+    // Parse the response and remove any markdown artifacts
+    const [summary, keyPoints, codeExample, bestPractices, commonPitfalls, furtherLearning, realWorldApplications] = response.split('\n\n')
+      .map(section => section.replace(/^[#\s*`]+|[#\s*`]+$/g, '').trim());
 
     return NextResponse.json({
-      summary: summary || 'No summary provided',
-      keyPoints: keyPoints ? keyPoints.split('\n').filter(point => point.trim() !== '') : ['No key points provided'],
-      codeExample: codeExample || 'No code example provided',
-      bestPractices: bestPractices ? bestPractices.split('\n').filter(practice => practice.trim() !== '') : ['No best practices provided'],
-      commonPitfalls: commonPitfalls ? commonPitfalls.split('\n').filter(pitfall => pitfall.trim() !== '') : ['No common pitfalls provided'],
-      furtherLearning: furtherLearning ? furtherLearning.split('\n').filter(resource => resource.trim() !== '') : ['No further learning resources provided'],
-      versionInfo: versionInfo || 'Version information not available',
+      summary,
+      keyPoints: keyPoints.split('\n').map(point => point.replace(/^\d+\.\s*/, '').trim()),
+      codeExample,
+      bestPractices: bestPractices.split('\n').map(practice => practice.replace(/^\d+\.\s*/, '').trim()),
+      commonPitfalls: commonPitfalls.split('\n').map(pitfall => pitfall.replace(/^\d+\.\s*/, '').trim()),
+      furtherLearning: furtherLearning.split('\n').map(resource => resource.replace(/^\d+\.\s*/, '').trim()),
+      realWorldApplications: realWorldApplications.split('\n').map(app => app.replace(/^\d+\.\s*/, '').trim()),
+      generatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error in AI summary generation:', error);
@@ -71,7 +73,8 @@ export async function POST(request: Request) {
       bestPractices: ["Regularly update your dependencies", "Follow coding standards and best practices for each technology"],
       commonPitfalls: ["Neglecting to handle errors properly", "Ignoring performance considerations"],
       furtherLearning: ["Official documentation", "Online courses and tutorials"],
-      versionInfo: "Fallback information as of July 2024",
+      realWorldApplications: ["Web applications", "Mobile app development", "Data analysis projects"],
+      generatedAt: new Date().toISOString(),
     }, { status: 200 });
   }
 }
