@@ -7,46 +7,71 @@ const openai = new OpenAI({
 });
 
 export async function POST(request: Request) {
+  let technologies: string[] = [];
+  let query: string = '';
+
   try {
-    const { query, technologies } = await request.json();
+    const body = await request.json();
+    query = body.query;
+    technologies = body.technologies || [];
 
     const prompt = `
-      You are an AI assistant specialized in providing concise, accurate information about various technologies. 
+      You are an AI assistant specialized in providing detailed, accurate information about various technologies. 
       The user has selected the following technologies: ${technologies.join(', ')}.
-      Please provide information addressing the following query, focusing only on the selected technologies:
+      Please provide comprehensive information addressing the following query, focusing only on the selected technologies:
       "${query}"
       Your response should be structured as follows:
-      1. A 3-4 line summary on how to use the queried tech or feature, in the context of the selected technologies.
-      2. A beginner-friendly code example demonstrating the use of the queried tech or feature, incorporating only the selected technologies where relevant.
-      3. 3-5 main points to keep in mind while using this tech or feature, in the context of the selected technologies.
-      4. The current version or date of the information you're providing.
-      Please ensure all information is up-to-date and beginner-friendly, assuming the reader has little to no prior knowledge.
+      1. Summary: A detailed 5-6 line explanation of the concept, its importance, and its relation to the selected technologies.
+      2. Key Points: 5-7 important points about the concept, each explained in 1-2 sentences.
+      3. Code Example: A substantial, well-commented code example (15-20 lines) demonstrating the concept in action, using the selected technologies where relevant.
+      4. Best Practices: 3-5 best practices or tips for using this concept effectively.
+      5. Common Pitfalls: 2-3 common mistakes or misconceptions to avoid.
+      6. Further Learning: 2-3 suggested resources or topics for deeper understanding.
+      7. Version Info: The current version or date of the information you're providing.
+      
+      Please ensure all information is up-to-date, beginner-friendly, and provides a comprehensive understanding of the topic.
     `;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 1000,
+      max_tokens: 2000,  // Increased token limit for more detailed response
     });
 
-    const responseContent = completion.choices[0]?.message?.content;
+    const response = completion.choices[0].message.content;
 
-    if (!responseContent) {
+    if (!response) {
       throw new Error('No response from AI');
     }
 
     // Parse the response
-    const [summary, codeExample, keyPointsRaw, version] = responseContent.split('\n\n');
-    const keyPoints = keyPointsRaw ? keyPointsRaw.split('\n').filter(point => point.trim() !== '') : [];
+    const [summary, keyPoints, codeExample, bestPractices, commonPitfalls, furtherLearning, versionInfo] = response.split('\n\n');
 
     return NextResponse.json({
       summary: summary || 'No summary provided',
+      keyPoints: keyPoints ? keyPoints.split('\n').filter(point => point.trim() !== '') : ['No key points provided'],
       codeExample: codeExample || 'No code example provided',
-      keyPoints: keyPoints.length > 0 ? keyPoints : ['No key points provided'],
-      version: version || 'Version information not available',
+      bestPractices: bestPractices ? bestPractices.split('\n').filter(practice => practice.trim() !== '') : ['No best practices provided'],
+      commonPitfalls: commonPitfalls ? commonPitfalls.split('\n').filter(pitfall => pitfall.trim() !== '') : ['No common pitfalls provided'],
+      furtherLearning: furtherLearning ? furtherLearning.split('\n').filter(resource => resource.trim() !== '') : ['No further learning resources provided'],
+      versionInfo: versionInfo || 'Version information not available',
     });
   } catch (error) {
     console.error('Error in AI summary generation:', error);
-    return NextResponse.json({ error: 'Failed to generate AI summary' }, { status: 500 });
+    
+    // Fallback response
+    return NextResponse.json({
+      summary: `We're sorry, but we couldn't generate a detailed response at this time. Here's some general information about ${technologies.join(' and ')}:`,
+      keyPoints: [
+        "Always refer to the official documentation for the most up-to-date information.",
+        "Consider joining community forums or discussion groups for additional support.",
+        "Practice regularly to improve your skills with these technologies."
+      ],
+      codeExample: technologies.length > 0 ? `// Example of using ${technologies[0]} (if applicable):\nconsole.log("Hello from ${technologies[0]}!");` : '// No technologies selected',
+      bestPractices: ["Regularly update your dependencies", "Follow coding standards and best practices for each technology"],
+      commonPitfalls: ["Neglecting to handle errors properly", "Ignoring performance considerations"],
+      furtherLearning: ["Official documentation", "Online courses and tutorials"],
+      versionInfo: "Fallback information as of July 2024",
+    }, { status: 200 });
   }
 }
