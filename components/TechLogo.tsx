@@ -21,7 +21,20 @@ const logoMap: { [key: string]: string } = {
   'PostgreSQL': '/images/logos/postgresql-logo.svg',
   'MongoDB': '/images/logos/mongodb-logo.svg',
   'Spring Boot': '/images/logos/spring-boot-logo.svg',
+  'Ruby on Rails': '/images/logos/rails-logo.svg',
+  'Flutter': '/images/logos/flutter-logo.svg',
+  'Swift': '/images/logos/swift-logo.svg',
+  'Kotlin': '/images/logos/kotlin-logo.svg',
+  'GraphQL': '/images/logos/graphql-logo.svg',
+  'Docker': '/images/logos/docker-logo.svg',
+  'Kubernetes': '/images/logos/kubernetes-logo.svg',
+  'AWS': '/images/logos/aws-logo.svg',
+  'Azure': '/images/logos/azure-logo.svg',
+  'Firebase': '/images/logos/firebase-logo.svg',
+  'Redux': '/images/logos/redux-logo.svg',
+  'Jest': '/images/logos/jest-logo.svg',
 };
+
 
 export default function TechLogo({ name, className = '' }: TechLogoProps) {
   const logoSrc = logoMap[name];

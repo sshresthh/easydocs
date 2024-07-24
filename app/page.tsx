@@ -4,8 +4,11 @@ import TechSelector from '@/components/TechSelector';
 
 const techList = [
   'React', 'Next.js', 'Vue.js', 'Angular', 'Node.js', 'Python', 'Django',
-  'JavaScript', 'TypeScript', 'TailwindCSS', 'PostgreSQL', 'MongoDB', 'Spring Boot'
+  'JavaScript', 'TypeScript', 'TailwindCSS', 'PostgreSQL', 'MongoDB', 'Spring Boot',
+  'Ruby on Rails', 'Flutter', 'Swift', 'Kotlin', 'GraphQL', 'Docker', 'Kubernetes',
+  'AWS', 'Azure', 'Firebase', 'Redux', 'Jest'
 ];
+
 
 export default function HomePage() {
   return (
