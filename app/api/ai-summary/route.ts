@@ -21,11 +21,11 @@ export async function POST(request: Request) {
       Please provide detailed information addressing the following query, focusing on the selected technologies:
       "${query}"
       Your response should be structured as follows:
-      1. Summary: A detailed 10-12 line explanation of the concept, its importance, and its relation to the selected technologies.
-      2. Key Points: 8-10 important points about the concept, each explained in 2-3 sentences.
-      3. Code Example: A comprehensive, well-commented code example (30-40 lines) demonstrating the concept in action, using ALL the selected technologies where relevant. Ensure the example is practical and showcases real-world usage.
-      4. Best Practices: 5-7 best practices or tips for using this concept effectively, each with a brief explanation.
-      5. Common Pitfalls: 4-5 common mistakes or misconceptions to avoid, with explanations on why they occur and how to prevent them.
+      - A detailed 10-12 line explanation of the concept, its importance, and its relation to the selected technologies.
+      - Key Points: 8-10 important points about the concept, each explained in 2-3 sentences.
+      - Code Example: A comprehensive, well-commented code example (30-40 lines) demonstrating the concept in action, using ALL the selected technologies where relevant. Ensure the example is practical and showcases real-world usage.
+      - Best Practices: 5-7 best practices or tips for using this concept effectively, each with a brief explanation.
+      - Common Pitfalls: 4-5 common mistakes or misconceptions to avoid, with explanations on why they occur and how to prevent them.
       6. Further Learning: 4-5 suggested resources or topics for deeper understanding, with a brief description of what each resource offers.
       7. Real-world Applications: 3-4 examples of how this concept is used in real-world applications or projects.
       
