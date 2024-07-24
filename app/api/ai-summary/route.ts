@@ -1,85 +1,78 @@
 // File: app/api/ai-summary/route.ts
-import { StreamingTextResponse } from "ai";
-import OpenAI from "openai";
-
-export const runtime = "edge";
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
+  let technologies: string[] = [];
+  let query: string = '';
+
   try {
     const { query, technologies } = await req.json();
     
     const prompt = `
-      Act as a professional tech tutor and provide a comprehensive summary about ${query} in the context of ${technologies.join(
-      ", "
-    )}.
-      Format your response exactly as follows:
-    
-      Summary:
-      [4-5 sentence summary that even a layman can understand]
-    
-      Key Points:
-      1. [Key point about ${query} 1 in the context of ${technologies.join(
-      ", "
-    )}]
-      2. [Key point about ${query} 2 in the context of ${technologies.join(
-      ", "
-    )}]
-      3. [Key point about ${query} 3 in the context of ${technologies.join(
-      ", "
-    )}]
-      4. [Key point about ${query} 4 in the context of ${technologies.join(
-      ", "
-    )}]
-    
-      Code Example:
-      \`\`\`javascript
-      // Example of using ${technologies[0]} (if applicable):\nconsole.log("Hello from ${technologies[0]}!");
-      [A good code example with at least 15-20 lines that shows the use of ${query} in the context of ${technologies.join(
-      ", "
-    )}]
-      \`\`\`
-    
-      Best Practices:
-      1. [Best practice of ${query} 1 in the context of ${technologies.join(
-      ", "
-    )}]
-      2. [Best practice of ${query} 2 in the context of ${technologies.join(
-      ", "
-    )}]
-    
-      Common Pitfalls:
-      1. [Common pitfall of ${query} 1]
-      2. [Common pitfall of ${query} 2]
-    
-      Be concise and focus on the most important information so that any developer from beginner to pro can understand.
+      You are an AI assistant specialized in providing comprehensive, accurate information about various technologies. 
+      The user has selected the following technologies: ${technologies.join(', ')}.
+      Please provide detailed information addressing the following query, focusing on the selected technologies:
+      "${query}"
+      Your response should be structured as follows:
+      1. Summary: A detailed 10-12 line explanation of the concept, its importance, and its relation to the selected technologies.
+      2. Key Points: 8-10 important points about the concept, each explained in 2-3 sentences.
+      3. Code Example: A comprehensive, well-commented code example (30-40 lines) demonstrating the concept in action, using ALL the selected technologies where relevant. Ensure the example is practical and showcases real-world usage.
+      4. Best Practices: 5-7 best practices or tips for using this concept effectively, each with a brief explanation.
+      5. Common Pitfalls: 4-5 common mistakes or misconceptions to avoid, with explanations on why they occur and how to prevent them.
+      6. Further Learning: 4-5 suggested resources or topics for deeper understanding, with a brief description of what each resource offers.
+      7. Real-world Applications: 3-4 examples of how this concept is used in real-world applications or projects.
+      
+      Please ensure all information is up-to-date, provides a comprehensive understanding of the topic, and is tailored to an audience with some programming experience. Do not use any markdown formatting in your response.
     `;
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
-      stream: true,
-      max_tokens: 2000,
-      temperature: 0.7,
+      max_tokens: 3000,  // Increased token limit for more detailed response
     });
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of response) {
-          const content = chunk.choices[0]?.delta?.content || "";
-          if (content) {
-            controller.enqueue(content);
-          }
-        }
-        controller.close();
-      },
-    });
+    const response = completion.choices[0].message.content;
 
-    return new StreamingTextResponse(stream);
+    if (!response) {
+      throw new Error('No response from AI');
+    }
+
+    // Parse the response and remove any markdown artifacts
+    const [summary, keyPoints, codeExample, bestPractices, commonPitfalls, furtherLearning, realWorldApplications] = response.split('\n\n')
+      .map(section => section.replace(/^[#\s*`]+|[#\s*`]+$/g, '').trim());
+
+    return NextResponse.json({
+      summary,
+      keyPoints: keyPoints.split('\n').map(point => point.replace(/^\d+\.\s*/, '').trim()),
+      codeExample,
+      bestPractices: bestPractices.split('\n').map(practice => practice.replace(/^\d+\.\s*/, '').trim()),
+      commonPitfalls: commonPitfalls.split('\n').map(pitfall => pitfall.replace(/^\d+\.\s*/, '').trim()),
+      furtherLearning: furtherLearning.split('\n').map(resource => resource.replace(/^\d+\.\s*/, '').trim()),
+      realWorldApplications: realWorldApplications.split('\n').map(app => app.replace(/^\d+\.\s*/, '').trim()),
+      generatedAt: new Date().toISOString(),
+    });
   } catch (error) {
-    console.error("Error in AI summary generation:", error);
+    console.error('Error in AI summary generation:', error);
+    
+    // Fallback response
+    return NextResponse.json({
+      summary: `We're sorry, but we couldn't generate a detailed response at this time. Here's some general information about ${technologies.join(' and ')}:`,
+      keyPoints: [
+        "Always refer to the official documentation for the most up-to-date information.",
+        "Consider joining community forums or discussion groups for additional support.",
+        "Practice regularly to improve your skills with these technologies."
+      ],
+      codeExample: technologies.length > 0 ? `// Example of using ${technologies[0]} (if applicable):\nconsole.log("Hello from ${technologies[0]}!");` : '// No technologies selected',
+      bestPractices: ["Regularly update your dependencies", "Follow coding standards and best practices for each technology"],
+      commonPitfalls: ["Neglecting to handle errors properly", "Ignoring performance considerations"],
+      furtherLearning: ["Official documentation", "Online courses and tutorials"],
+      realWorldApplications: ["Web applications", "Mobile app development", "Data analysis projects"],
+      generatedAt: new Date().toISOString(),
+    }, { status: 200 });
   }
 }
