@@ -13,10 +13,22 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
   const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const generateCustomPrompt = (userQuery: string, technologies: string[]) => {
+    return `You are an AI assistant specialized in providing concise, accurate information about various technologies. 
+    The user has selected the following technologies: ${technologies.join(', ')}.
+    Please provide a brief, informative summary addressing the following query, focusing on the selected technologies:
+    "${userQuery}"
+    Your response should be clear, concise, and directly relevant to the query and the selected technologies. 
+    If the query is not directly related to the selected technologies, still try to provide useful information 
+    while mentioning how it might relate to or differ from the selected technologies.`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setSummary('');
+
+    const customPrompt = generateCustomPrompt(query, selectedTech);
 
     try {
       // This is a placeholder for the actual API call
@@ -25,7 +37,7 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query, technologies: selectedTech }),
+        body: JSON.stringify({ customPrompt, query, technologies: selectedTech }),
       });
 
       if (!response.ok) {
@@ -64,13 +76,13 @@ export default function SearchBox({ selectedTech }: SearchBoxProps) {
       </form>
       {isLoading && (
         <div className="text-white text-center">
-          Generating summary...
+          Generating insights...
         </div>
       )}
       {summary && (
         <div className="bg-white rounded-lg p-4 shadow-lg">
-          <h2 className="text-xl font-bold mb-2">AI Summary:</h2>
-          <p>{summary}</p>
+          <h2 className="text-xl font-bold mb-2">AI Insights:</h2>
+          <p className="text-gray-700">{summary}</p>
         </div>
       )}
     </div>
